@@ -1,0 +1,10 @@
+{
+  "status_code": 200,
+  "json": {
+    "status": "success",
+    "data": {
+      "numRatings": 17
+    }
+  },
+  "text": null
+}

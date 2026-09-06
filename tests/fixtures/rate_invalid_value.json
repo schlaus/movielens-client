@@ -1,0 +1,11 @@
+{
+  "status_code": 400,
+  "json": {
+    "status": "fail",
+    "message": "invalid rating",
+    "validationErrors": [
+      "Rating has to be between -1.0 to 5.0."
+    ]
+  },
+  "text": null
+}

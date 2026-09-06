@@ -1,0 +1,19 @@
+{
+  "status_code": 200,
+  "json": {
+    "status": "success",
+    "data": {
+      "title": null,
+      "description": null,
+      "url": null,
+      "searchResults": [],
+      "pager": {
+        "itemsPerPage": 3,
+        "totalItems": 17,
+        "currentPage": 7,
+        "totalPages": 6
+      }
+    }
+  },
+  "text": null
+}

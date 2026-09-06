@@ -1,0 +1,9 @@
+{
+  "status_code": 400,
+  "json": {
+    "status": "fail",
+    "message": "json is missing required double: predictedRating",
+    "validationErrors": []
+  },
+  "text": null
+}

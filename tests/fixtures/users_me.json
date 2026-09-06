@@ -1,0 +1,50 @@
+{
+  "status_code": 200,
+  "json": {
+    "status": "success",
+    "data": {
+      "exptInfo": {
+        "PoproxRecruit2026": {
+          "status": "testing"
+        }
+      },
+      "numRatings": 17,
+      "account": {
+        "email": "fixture-user@example.invalid",
+        "userName": "fixture-user",
+        "firstLogin": "2026-09-06T08:24:33.000Z",
+        "previousLogin": null,
+        "timeAsMemberSeconds": 18006,
+        "privacyPolicyHasChanged": false
+      },
+      "preferences": {
+        "options": {
+          "theme": "system",
+          "canSendEmail": "Y",
+          "firstLoginTheme": false
+        },
+        "hasPickedGroups": true,
+        "movieGroupTags": [
+          "action",
+          "fun movie",
+          "special effects",
+          "blood",
+          "dark humor",
+          "social commentary"
+        ],
+        "recommender": {
+          "engineWeight": null,
+          "popWeight": null,
+          "engineId": "bard"
+        }
+      },
+      "state": {
+        "userBuddyModel": {
+          "usingBuddyRecommender": false,
+          "buddyIds": []
+        }
+      }
+    }
+  },
+  "text": null
+}

@@ -1,0 +1,8 @@
+{
+  "status_code": 500,
+  "json": {
+    "status": "error",
+    "message": "MovieLens application error MLERR0"
+  },
+  "text": null
+}
