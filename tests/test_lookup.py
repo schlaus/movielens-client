@@ -308,17 +308,21 @@ def test_an_outage_during_a_lookup_is_an_api_error(logged_in_http):
 
 def test_a_found_movie_can_be_rated_without_another_lookup(search_http):
     """The point of the feature: a film MovieLens never showed us is rateable."""
-    search_http.routes[("GET", "/api/movies/2571")] = response_from_fixture(
-        "movie_detail"
-    )
+    detail = ("GET", f"/api/movies/{PARASITE_2019[1]}")
+    search_http.routes[detail] = response_from_fixture("movie_detail")
     search_http.routes[("POST", "/api/users/me/ratings")] = response_from_fixture(
         "rate_success"
     )
     session = login("u", "p", http=search_http)
 
     found = session.find_movie_by_imdb_id(PARASITE_2019[0], "Parasite")
-    session.rate(found.movie_id, 4.0, predicted_rating=3.5)
+    # No predicted_rating: rate() has to look one up for the film just found,
+    # which is the whole flow — lookup, detail fetch, write.
+    session.rate(found.movie_id, 4.0)
 
+    paths = [c["path"] for c in search_http.calls]
+    assert paths[-2] == detail[1]
     write = search_http.calls[-1]
     assert write["path"] == "/api/users/me/ratings"
     assert write["json"]["movieId"] == PARASITE_2019[1]
+    assert write["json"]["predictedRating"] is not None
