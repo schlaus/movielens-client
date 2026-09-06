@@ -123,3 +123,31 @@ def test_an_account_with_no_ratings_yields_nothing_and_does_not_raise(logged_in_
     session = login("u", "p", http=logged_in_http)
 
     assert list(session.iter_ratings(page_size=3)) == []
+
+
+def test_a_page_shorter_than_requested_does_not_end_the_stream(logged_in_http):
+    """A short page is not proof of the last page.
+
+    If MovieLens ever clamps ``pageSize`` server-side — answering 50 when asked
+    for 100 — treating a short page as the end would silently truncate a heavy
+    account's stream at one page, with no error for the consumer to notice.
+    Only an empty page, ``pager.totalItems``, or a non-advancing page parameter
+    may stop iteration.
+    """
+    short = response_from_fixture("ratings_page1")
+    short._payload["data"]["searchResults"] = short._payload["data"]["searchResults"][:2]
+    short._payload["data"]["pager"].update({"totalItems": 50, "itemsPerPage": 2})
+    second = response_from_fixture("ratings_page2")
+    second._payload["data"]["pager"]["totalItems"] = 50
+
+    def route(params, _payload):
+        page = int(params["page"])
+        return {1: short, 2: second}.get(page) or response_from_fixture("ratings_page7")
+
+    logged_in_http.routes[EXPLORE] = route
+    session = login("u", "p", http=logged_in_http)
+
+    ratings = list(session.iter_ratings(page_size=100))
+
+    assert len(ratings) == 5, "iteration stopped on a short page instead of an empty one"
+    assert [c["params"]["page"] for c in logged_in_http.calls if c["path"].endswith("explore")] == [1, 2, 3]

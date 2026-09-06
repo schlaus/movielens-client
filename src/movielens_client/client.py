@@ -176,8 +176,8 @@ class MovieLensSession:
         """Walk ``/api/movies/explore`` a page at a time.
 
         ``limit`` is ignored by the API; ``pageSize`` and ``page`` work.
-        Stops on the first empty page, on reaching ``pager.totalItems``, on a
-        short page, or if the server stops advancing — the last guard turns a
+        Stops on the first empty page, on reaching ``pager.totalItems``, or if
+        the server stops advancing the page parameter — that last guard turns a
         server-side surprise into a stop rather than an endless loop.
         """
         if page_size < 1:
@@ -210,8 +210,13 @@ class MovieLensSession:
             total_items = (data.get("pager") or {}).get("totalItems")
             if isinstance(total_items, int) and yielded >= total_items:
                 return
-            if len(results) < page_size:
-                return
+            # Deliberately no "short page means last page" shortcut. Asking for
+            # 100 and getting 50 would end the stream silently if MovieLens
+            # ever clamped pageSize server-side, and a mirroring consumer would
+            # see a truncated account with no error. It does not clamp today —
+            # pageSize up to 1000 was honoured exactly on 2026-09-06 — but the
+            # cost of not assuming it is one extra request for the empty page
+            # at the end of the stream.
             page += 1
 
     def _request(

@@ -49,7 +49,9 @@ def test_paged_ratings_stream(live_session):
 
 
 def test_predictions_stream(live_session):
-    stream = live_session.iter_predictions(page_size=5)
+    # Deliberately the default page size: that is the code path the consumer
+    # takes, and the prediction feed is the only one long enough to fill it.
+    stream = live_session.iter_predictions()
     batch = [next(stream) for _ in range(5)]
     assert all(isinstance(p, Prediction) for p in batch)
     assert all(p.imdb_id is None or p.imdb_id.startswith("tt") for p in batch)

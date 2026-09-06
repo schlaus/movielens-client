@@ -122,8 +122,10 @@ class _HasMovie:
 
 @dataclass(frozen=True)
 class Rating(_HasMovie):
+    #: ``rating`` is populated for everything the ratings stream yields, but is
+    #: typed optional because MovieLens can return a null in the same field.
     movie: Movie
-    rating: float
+    rating: float | None
     rated_at: datetime | None
     prediction: float | None
 
