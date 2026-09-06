@@ -77,7 +77,6 @@ def test_ratings_carry_canonical_imdb_ids_and_rating_data(rated_http):
     assert first.movie.title == "The Shawshank Redemption"
     assert first.imdb_id == "tt0111161"
     assert first.movie_id == 318
-    assert first.movie_id != first.imdb_id
     assert first.rating == 4.0
     assert first.rated_at is not None
     assert first.rated_at.year == 2026

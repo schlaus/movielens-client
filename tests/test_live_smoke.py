@@ -9,12 +9,18 @@ It rates a film on the test account — that account exists for this purpose.
 The write is restored to the value it had beforehand.
 """
 
+import re
+
 import pytest
 
 from movielens_client import AuthenticationError, login
 from movielens_client.models import Prediction, Rating
 
 pytestmark = pytest.mark.live
+
+#: What the consumer joins on. MovieLens sends "0111161"; anything that is not
+#: tt + at least seven digits by the time it reaches here is drift.
+CANONICAL_IMDB = re.compile(r"tt\d{7,}")
 
 
 @pytest.fixture(scope="module")
@@ -28,7 +34,8 @@ def live_session(live_credentials):
 def test_login_and_account(live_session):
     account = live_session.account()
     assert account.user_name
-    assert account.num_ratings >= 0
+    # Not >= 0: int(... or 0) makes that true even when parsing has broken.
+    assert account.num_ratings > 0
 
 
 def test_bad_password_is_rejected_as_an_auth_error(live_credentials):
@@ -42,7 +49,13 @@ def test_paged_ratings_stream(live_session):
     seen = []
     for rating in live_session.iter_ratings(page_size=3):
         assert isinstance(rating, Rating)
-        assert rating.imdb_id is None or rating.imdb_id.startswith("tt")
+        # Asserted unconditionally, not "is None or startswith". This suite is
+        # the only place positioned to notice live imdbMovieId drift — the
+        # offline tests read recordings, which by definition cannot drift — so
+        # an assertion that also passes when every id is None would be the one
+        # check that cannot fail where failing is the whole point.
+        assert CANONICAL_IMDB.fullmatch(rating.imdb_id or ""), rating.movie_id
+        assert rating.rating is not None
         seen.append(rating.movie_id)
     assert len(seen) == expected
     assert len(set(seen)) == len(seen)
@@ -54,7 +67,8 @@ def test_predictions_stream(live_session):
     stream = live_session.iter_predictions()
     batch = [next(stream) for _ in range(5)]
     assert all(isinstance(p, Prediction) for p in batch)
-    assert all(p.imdb_id is None or p.imdb_id.startswith("tt") for p in batch)
+    for prediction in batch:
+        assert CANONICAL_IMDB.fullmatch(prediction.imdb_id or ""), prediction.movie_id
     # Predictions are null until the account has rated enough films. This
     # account has, so at least one must come back populated.
     assert any(p.prediction is not None for p in batch)

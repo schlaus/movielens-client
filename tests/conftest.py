@@ -1,8 +1,15 @@
 """Offline test harness.
 
-Every unit test runs against JSON recorded from the live service on 2026-09-06
-and stored in ``tests/fixtures``. Nothing here touches the network: the client
-accepts an injected ``requests.Session``-alike, and ``FakeHTTP`` is that alike.
+The fixtures in ``tests/fixtures`` are JSON recorded from the live service on
+2026-09-06, with one exception: ``movie_detail_no_prediction.json`` is derived
+from the recorded ``movie_detail.json`` with ``prediction`` nulled, because the
+test account is past cold start and a genuine null could not be captured
+without discarding its ratings. That file says so in a ``_note`` key. Some
+tests also mutate a loaded fixture in-place to construct a shape the live
+account cannot produce — each says why.
+
+Nothing here touches the network: the client accepts an injected
+``requests.Session``-alike, and ``FakeHTTP`` is that alike.
 """
 
 from __future__ import annotations
