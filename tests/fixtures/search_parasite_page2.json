@@ -1,0 +1,291 @@
+{
+  "status_code": 200,
+  "json": {
+    "status": "success",
+    "data": {
+      "title": null,
+      "description": null,
+      "url": null,
+      "searchResults": [
+        {
+          "movieId": 231417,
+          "rec_val_type": "",
+          "tstamp": null,
+          "movie": {
+            "movieId": 231417,
+            "tmdbMovieId": 485483,
+            "imdbMovieId": "4891326",
+            "title": "Infested! Living With Parasites",
+            "originalTitle": "Infested! Living With Parasites",
+            "mpaa": null,
+            "runtime": 62,
+            "releaseDate": "2014-02-19",
+            "dvdReleaseDate": null,
+            "genres": [
+              "Documentary"
+            ],
+            "languages": [
+              "English"
+            ],
+            "directors": [
+              "Nathan Williams"
+            ],
+            "actors": [
+              "Michael Mosley"
+            ],
+            "posterPath": "/xBx0BiUG6KvaKfSp9NFVYs2VciM.jpg",
+            "backdropPaths": [],
+            "youtubeTrailerIds": [],
+            "plotSummary": "Dr Michael Mosley explores the bizarre and fascinating world of parasites by turning his body into a living laboratory and deliberately infesting himself with them.",
+            "numRatings": 3,
+            "avgRating": 3.33333,
+            "releaseYear": "2014"
+          },
+          "movieUserData": {
+            "userId": 443285,
+            "movieId": 231417,
+            "rating": null,
+            "dateRated": null,
+            "prediction": 3.4802522252709474,
+            "wishlist": false,
+            "hidden": false,
+            "predictionDetails": {
+              "primaryPrediction": 3.4802522252709474,
+              "primaryPredictionType": "FALLBACK",
+              "components": [
+                {
+                  "pred": 3.4802522252709474,
+                  "type": "FALLBACK"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "movieId": 294365,
+          "rec_val_type": "",
+          "tstamp": null,
+          "movie": {
+            "movieId": 294365,
+            "tmdbMovieId": 709589,
+            "imdbMovieId": "16059146",
+            "title": "Parasite in Love",
+            "originalTitle": "恋する寄生虫",
+            "mpaa": null,
+            "runtime": 100,
+            "releaseDate": "2021-11-12",
+            "dvdReleaseDate": null,
+            "genres": [
+              "Drama",
+              "Romance"
+            ],
+            "languages": [
+              "日本語"
+            ],
+            "directors": [
+              "Kensaku Kakimoto"
+            ],
+            "actors": [
+              "Kento Hayashi",
+              "Nana Komatsu",
+              "Arata Iura",
+              "Ryo Ishibashi"
+            ],
+            "posterPath": "/tZGv4WwTGYHfkBIVGrC5WltrssE.jpg",
+            "backdropPaths": [
+              "/xVpb8QB426LP9YYHyevKMw9Y3uQ.jpg"
+            ],
+            "youtubeTrailerIds": [
+              "S-lelcQ6Prk",
+              "-VqYIReuDYQ"
+            ],
+            "plotSummary": "A man named Kengo Kosaka is germaphobe, Due to his disorder, he is also a lonely young man. Meanwhile, high school student Hijiri Sanagi has Ommatophobia. Both Kengo Kosaka and Hijiri Sanagi do not expect to find love with another person.",
+            "numRatings": 1,
+            "avgRating": 4.0,
+            "releaseYear": "2021"
+          },
+          "movieUserData": {
+            "userId": 443285,
+            "movieId": 294365,
+            "rating": null,
+            "dateRated": null,
+            "prediction": 3.5201642591661337,
+            "wishlist": false,
+            "hidden": false,
+            "predictionDetails": {
+              "primaryPrediction": 3.5201642591661337,
+              "primaryPredictionType": "FALLBACK",
+              "components": [
+                {
+                  "pred": 3.5201642591661337,
+                  "type": "FALLBACK"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "movieId": 171853,
+          "rec_val_type": "",
+          "tstamp": null,
+          "movie": {
+            "movieId": 171853,
+            "tmdbMovieId": 33045,
+            "imdbMovieId": "0119860",
+            "title": "Parasite Eve",
+            "originalTitle": "パラサイト・イヴ",
+            "mpaa": "",
+            "runtime": 120,
+            "releaseDate": "1997-02-01",
+            "dvdReleaseDate": null,
+            "genres": [
+              "Science Fiction",
+              "Horror",
+              "Romance"
+            ],
+            "languages": [
+              "日本語"
+            ],
+            "directors": [
+              "Masayuki Ochiai"
+            ],
+            "actors": [
+              "Hiroshi Mikami",
+              "Riona Hazuki",
+              "Tomoko Nakajima",
+              "Ayako Omura",
+              "Goro Inagaki",
+              "Hisako Manda",
+              "Tetsuya Bessho",
+              "Noboru Mitani",
+              "Kenzō Kawarasaki",
+              "Sanshō Shinsui",
+              "Ikkei Watanabe",
+              "Ren Osugi"
+            ],
+            "posterPath": "/tEQqMOfiHWtCb2dDu4X5dOBF2AH.jpg",
+            "backdropPaths": [
+              "/ynYT4ohuJnbkYdb1OYmvD5AiG3A.jpg",
+              "/dw40klAqtST3mjbbqGiDV9tKsvS.jpg",
+              "/en2uf2W1ua3TGcE4R3GVBrxgynw.jpg"
+            ],
+            "youtubeTrailerIds": [],
+            "plotSummary": "A scientist realizes his dead wife is an organization of mitochondria bent on making a new species that will wipe out humanity.",
+            "numRatings": 7,
+            "avgRating": 3.07143,
+            "releaseYear": "1997"
+          },
+          "movieUserData": {
+            "userId": 443285,
+            "movieId": 171853,
+            "rating": null,
+            "dateRated": null,
+            "prediction": 3.3997701701912697,
+            "wishlist": false,
+            "hidden": false,
+            "predictionDetails": {
+              "primaryPrediction": 3.3997701701912697,
+              "primaryPredictionType": "FALLBACK",
+              "components": [
+                {
+                  "pred": 3.3997701701912697,
+                  "type": "FALLBACK"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "movieId": 142100,
+          "rec_val_type": "",
+          "tstamp": null,
+          "movie": {
+            "movieId": 142100,
+            "tmdbMovieId": 80089,
+            "imdbMovieId": "0376058",
+            "title": "Parasite Dolls",
+            "originalTitle": "パラサイトドールズ",
+            "mpaa": "PG-13",
+            "runtime": 85,
+            "releaseDate": "2003-05-22",
+            "dvdReleaseDate": null,
+            "genres": [
+              "Action",
+              "Animation",
+              "Science Fiction",
+              "Thriller"
+            ],
+            "languages": [
+              "日本語"
+            ],
+            "directors": [
+              "Naoyuki Yoshinaga",
+              "Kazuto Nakazawa"
+            ],
+            "actors": [
+              "Kazuhiko Inoue",
+              "Akemi Okamura",
+              "Masaru Ikeda",
+              "Somei Uchida",
+              "Kikuko Inoue",
+              "Toshio Furukawa",
+              "Ai Orikasa",
+              "Jouji Nakata",
+              "Koji Tsujitani",
+              "Mako Hyodo",
+              "Rie Saitou",
+              "Toru Okawa",
+              "Toshihiko Nakajima",
+              "Yukimasa Kishino",
+              "Hiroaki Yoshida",
+              "Kenji Nomura",
+              "Koichi Kuriyama",
+              "Mitsuru Ogata",
+              "Toshitaka Shimizu",
+              "Yuna Iwaki",
+              "Yuko Kagata"
+            ],
+            "posterPath": "/bCDVdpjhqbfMsSg0TlNeGMdg2el.jpg",
+            "backdropPaths": [
+              "/6eHSovkwyVt5VI0xt6aCWimeYVh.jpg",
+              "/oDHhUBssn28vQwSmdrMerfriaOh.jpg"
+            ],
+            "youtubeTrailerIds": [
+              "nhuEmXzbvaA"
+            ],
+            "plotSummary": "Beauty is only skin deep, but when you can’t see beneath the skin, how can you know what you’re really dealing with? In a world where perfect androids called Boomers have infiltrated every aspect of society, it’s the job of Branch to maintain peace between the people and the plastic. Unfortunately, not all boomers are created perfect, and when boomers go bad, people die. The thin blue line that separates man from machine is about to meet its most horrifying test in Parasite Dolls.",
+            "numRatings": 9,
+            "avgRating": 3.33333,
+            "releaseYear": "2003"
+          },
+          "movieUserData": {
+            "userId": 443285,
+            "movieId": 142100,
+            "rating": null,
+            "dateRated": null,
+            "prediction": 3.4475128533937553,
+            "wishlist": false,
+            "hidden": false,
+            "predictionDetails": {
+              "primaryPrediction": 3.4475128533937553,
+              "primaryPredictionType": "FALLBACK",
+              "components": [
+                {
+                  "pred": 3.4475128533937553,
+                  "type": "FALLBACK"
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "pager": {
+        "itemsPerPage": 5,
+        "totalItems": 9,
+        "currentPage": 2,
+        "totalPages": 2
+      }
+    }
+  },
+  "text": null
+}

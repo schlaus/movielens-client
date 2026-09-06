@@ -15,10 +15,14 @@ import requests
 from .errors import AuthenticationError, MovieLensAPIError
 from .models import (
     Account,
+    ExportedRating,
+    Movie,
     MovieDetail,
     Prediction,
     Rating,
     detail_from_result,
+    parse_ratings_csv,
+    canonical_imdb_id,
     prediction_from_result,
     rating_from_result,
 )
@@ -28,6 +32,15 @@ __all__ = ["MovieLensSession", "login", "DEFAULT_BASE_URL"]
 DEFAULT_BASE_URL = "https://movielens.org"
 DEFAULT_TIMEOUT = 30.0
 DEFAULT_PAGE_SIZE = 100
+
+#: Bounds for :meth:`MovieLensSession.find_movie_by_imdb_id`. A title search
+#: is the only way to reach a film by IMDb id, and a common word matches
+#: thousands — the recorded default page reports 10,000 items. 4 pages of 50
+#: is 200 candidates: comfortably more than any real title search needs (the
+#: live "Parasite" search returns 9, "The Matrix" 18) and a hard stop on the
+#: pathological one.
+SEARCH_PAGE_SIZE = 50
+SEARCH_MAX_PAGES = 4
 
 #: MovieLens' explore endpoint is one-indexed. ``page=0`` answers with
 #: ``500 MovieLens application error MLERR0``.
@@ -42,6 +55,12 @@ _JSON_HEADERS = {
     "Content-Type": "application/json",
     "Accept": "application/json",
 }
+
+#: The export endpoint answers ``text/csv`` whatever is asked for — verified
+#: 2026-09-06 — but the session sends ``Accept: application/json`` for every
+#: other call, and asking a CSV endpoint for JSON is how that would break if
+#: MovieLens ever started honouring the header.
+_CSV_HEADERS = {"Accept": "text/csv"}
 
 
 def _new_http() -> requests.Session:
@@ -124,6 +143,88 @@ class MovieLensSession:
         ):
             yield prediction_from_result(result)
 
+    def export_ratings(self) -> list[ExportedRating]:
+        """``GET /api/users/me/movielens-ratings.csv`` → the whole history.
+
+        One request for every rating on the account, rather than the dozens of
+        pages :meth:`iter_ratings` walks; that removes the paging failure modes
+        from a full sync entirely. Returns a list, not a generator: the body
+        arrives whole, so there is nothing to be lazy about, and deferring the
+        parse would surface shape errors half way through a consumer's write.
+
+        The rows carry ``average_rating`` — the community mean — alongside the
+        user's ``rating``, and no ``prediction`` or ``rated_at``. When those
+        two matter, :meth:`iter_ratings` still carries them.
+        """
+        text = self._text_request(
+            "GET", "/api/users/me/movielens-ratings.csv", headers=_CSV_HEADERS
+        )
+        return parse_ratings_csv(text)
+
+    def find_movie_by_imdb_id(
+        self,
+        imdb_id: str | None,
+        title: str,
+        *,
+        page_size: int = SEARCH_PAGE_SIZE,
+        max_pages: int = SEARCH_MAX_PAGES,
+    ) -> Movie | None:
+        """Resolve an IMDb id to a MovieLens movie, or ``None``.
+
+        Rating a film MovieLens has never shown the caller needs its
+        ``movieId``, and there is no direct lookup. The only route that works
+        is ``GET /api/movies/explore?q=<title>`` matched on
+        ``movie.imdbMovieId`` — so ``title`` is what is searched with and
+        ``imdb_id`` is what decides the answer.
+
+        Two things that look like lookups are not, both verified on
+        2026-09-06 and both silent about it:
+
+        * ``explore?imdbMovieId=…`` ignores the parameter and answers an
+          unrelated default page — a 10,000-item result set whose first film
+          has nothing to do with the id. Nothing errors.
+        * ``explore?q=tt0133093`` answers zero results.
+
+        So the match is on the id and never on position or title equality: a
+        search for "Parasite" returns three films titled exactly that, with
+        three different IMDb ids, and the wanted one is fourth. Titles differ
+        by language and subtitle where ids do not.
+
+        ``None`` is returned when nothing matches — a film MovieLens does not
+        carry is a normal answer, not a failure. An outage still raises, so
+        the caller can tell "not there" from "could not ask".
+
+        No ``year`` parameter: appending a year to the query returns zero
+        results (``q=Parasite 2019`` and ``q=Parasite (2019)`` both did on
+        2026-09-06), and filtering candidates by year could only *lose* the
+        right film, since MovieLens' ``releaseYear`` and IMDb's disagree for
+        festival and limited releases. The match is on a unique id; there is
+        nothing left for a year to disambiguate.
+        """
+        wanted = canonical_imdb_id(imdb_id)
+        if wanted is None:
+            # An id that canonicalises to nothing must never be compared with
+            # a result's id: MovieLens carries films with no imdbMovieId, and
+            # None == None would return one of them — an unrelated film, which
+            # the caller would then rate.
+            return None
+
+        query = (title or "").strip()
+        if not query:
+            return None
+
+        for result in self._iter_explore(
+            {"q": query}, page_size, max_pages=max_pages
+        ):
+            movie = Movie.from_payload(result.get("movie") or {})
+            # The `is not None` half is belt and braces: `wanted` cannot be
+            # None here, so a result with no id of its own already fails the
+            # comparison. It stays as the second lock on None == None in case
+            # the early return above is ever relaxed.
+            if movie.imdb_id is not None and movie.imdb_id == wanted:
+                return movie
+        return None
+
     def movie(self, movie_id: int) -> MovieDetail:
         """``GET /api/movies/<id>`` → the movie plus this user's data for it."""
         body = self._request("GET", f"/api/movies/{int(movie_id)}")
@@ -171,7 +272,11 @@ class MovieLensSession:
     # ---------------------------------------------------------------- interns
 
     def _iter_explore(
-        self, params: Mapping[str, Any], page_size: int
+        self,
+        params: Mapping[str, Any],
+        page_size: int,
+        *,
+        max_pages: int | None = None,
     ) -> Iterator[dict[str, Any]]:
         """Walk ``/api/movies/explore`` a page at a time.
 
@@ -179,12 +284,20 @@ class MovieLensSession:
         Stops on the first empty page, on reaching ``pager.totalItems``, or if
         the server stops advancing the page parameter — that last guard turns a
         server-side surprise into a stop rather than an endless loop.
+
+        ``max_pages`` bounds the walk. It is None for the account's own
+        streams, which must run to the end or silently truncate a mirror, and
+        set for title searches, where the caller wants one film out of a
+        result set that can report ten thousand.
         """
         if page_size < 1:
             raise ValueError("page_size must be at least 1")
+        if max_pages is not None and max_pages < 1:
+            raise ValueError("max_pages must be at least 1")
 
         page = FIRST_PAGE
         yielded = 0
+        pages_read = 0
         previous_first_id: Any = None
 
         while True:
@@ -202,6 +315,7 @@ class MovieLensSession:
             if not results:
                 return
 
+            pages_read += 1
             first_id = results[0].get("movieId")
             if previous_first_id is not None and first_id == previous_first_id:
                 return  # the page parameter is not advancing; stop, don't loop
@@ -213,6 +327,8 @@ class MovieLensSession:
 
             total_items = (data.get("pager") or {}).get("totalItems")
             if isinstance(total_items, int) and yielded >= total_items:
+                return
+            if max_pages is not None and pages_read >= max_pages:
                 return
             # Deliberately no "short page means last page" shortcut. Asking for
             # 100 and getting 50 would end the stream silently if MovieLens
@@ -240,6 +356,101 @@ class MovieLensSession:
             timeout=self._timeout,
         )
 
+    def _text_request(
+        self,
+        method: str,
+        path: str,
+        *,
+        params: Mapping[str, Any] | None = None,
+        headers: Mapping[str, str] | None = None,
+    ) -> str:
+        return _text_request(
+            self._http,
+            method,
+            f"{self._base_url}{path}",
+            params=params,
+            headers=headers,
+            timeout=self._timeout,
+        )
+
+
+def _send(
+    http: Any,
+    method: str,
+    url: str,
+    *,
+    params: Mapping[str, Any] | None,
+    payload: Mapping[str, Any] | None,
+    timeout: float,
+    headers: Mapping[str, str] | None = None,
+) -> Any:
+    """Issue the request, turning transport trouble into MovieLensAPIError.
+
+    Never let a raw requests exception escape: the consumer would have to
+    depend on requests to tell an outage from a bad password.
+    """
+    try:
+        return http.request(
+            method,
+            url,
+            params=params,
+            json=payload,
+            timeout=timeout,
+            headers=headers,
+        )
+    except requests.RequestException as exc:
+        raise MovieLensAPIError(f"request to MovieLens failed: {exc}") from exc
+
+
+def _raise_for_status(status_code: int, message: str) -> None:
+    """401/403 → AuthenticationError; any other 4xx/5xx → MovieLensAPIError.
+
+    Deliberately never widened: a 500 is an outage whatever endpoint it hits,
+    and routing it to AuthenticationError would tell the consumer that good
+    credentials are bad.
+    """
+    if status_code in (401, 403):
+        raise AuthenticationError(message or "MovieLens rejected the session")
+    if status_code >= 400:
+        raise MovieLensAPIError(
+            message or f"HTTP {status_code}", status_code=status_code
+        )
+
+
+def _message_of(body: Any) -> str:
+    return str(body.get("message") or "") if isinstance(body, dict) else ""
+
+
+def _json_of(response: Any) -> Any:
+    try:
+        return response.json()
+    except (ValueError, requests.RequestException):
+        return None
+
+
+def _text_request(
+    http: Any,
+    method: str,
+    url: str,
+    *,
+    params: Mapping[str, Any] | None = None,
+    headers: Mapping[str, str] | None = None,
+    timeout: float,
+) -> str:
+    """Fetch a body that is not JSON — today, the ratings CSV export.
+
+    Shares the status handling with :func:`_request` so a rejected session is
+    an :class:`AuthenticationError` here too, but does not require a
+    ``status: success`` envelope: a CSV body has no envelope to carry one. The
+    body is returned unparsed; deciding whether it is really CSV is the
+    parser's job, and it does refuse anything else.
+    """
+    response = _send(
+        http, method, url, params=params, payload=None, timeout=timeout, headers=headers
+    )
+    _raise_for_status(response.status_code, _message_of(_json_of(response)))
+    return response.text
+
 
 def _request(
     http: Any,
@@ -261,27 +472,18 @@ def _request(
     means the credentials were rejected. It deliberately does not widen 4xx or
     5xx into an auth failure: those are outages whatever endpoint they hit.
     """
-    try:
-        response = http.request(
-            method, url, params=params, json=payload, timeout=timeout
-        )
-    except requests.RequestException as exc:
-        # Never let a raw requests exception escape: the consumer would have to
-        # depend on requests to tell an outage from a bad password.
-        raise MovieLensAPIError(f"request to MovieLens failed: {exc}") from exc
-
+    response = _send(
+        http, method, url, params=params, payload=payload, timeout=timeout
+    )
     status_code = response.status_code
-    try:
-        body = response.json()
-    except (ValueError, requests.RequestException):
-        body = None
+    body = _json_of(response)
 
-    message = ""
-    if isinstance(body, dict):
-        message = str(body.get("message") or "")
-
-    if status_code in (401, 403):
-        raise AuthenticationError(message or "MovieLens rejected the session")
+    # Deliberately not conditioned on auth_failure. A rejected login is a 401
+    # and is caught here; a 200 carrying status: fail is caught below. Nothing
+    # else is a credential rejection, so routing 4xx/5xx to AuthenticationError
+    # at login would turn a MovieLens outage into "your password is wrong" —
+    # the consumer would stop deferring and mark good credentials invalid.
+    _raise_for_status(status_code, _message_of(body))
 
     if not isinstance(body, dict):
         raise MovieLensAPIError(
@@ -289,22 +491,11 @@ def _request(
             status_code=status_code,
         )
 
-    if status_code >= 400:
-        # Deliberately not conditioned on auth_failure. A rejected login is a
-        # 401 and was caught above; a 200 carrying status: fail is caught
-        # below. Nothing else reaching here is a credential rejection, so
-        # routing 4xx/5xx to AuthenticationError at login would turn a
-        # MovieLens outage into "your password is wrong" — the consumer would
-        # stop deferring and mark good credentials invalid.
-        raise MovieLensAPIError(
-            message or f"HTTP {status_code}", status_code=status_code
-        )
-
     if body.get("status") != "success":
         # A 200 carrying status: fail. On login this means bad credentials; if
         # it were read as success the caller would see 401s from then on and
         # mistake a bad password for an outage.
-        detail = message or "MovieLens reported failure"
+        detail = _message_of(body) or "MovieLens reported failure"
         if auth_failure:
             raise AuthenticationError(detail)
         raise MovieLensAPIError(detail, status_code=status_code)

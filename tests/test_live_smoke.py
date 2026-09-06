@@ -89,3 +89,69 @@ def test_rating_write_round_trips(live_session):
     finally:
         live_session.rate(movie_id, previous, predicted_rating=previous_prediction)
     assert live_session.movie(movie_id).rating == previous
+
+
+def test_csv_export_is_complete_and_agrees_with_the_paged_stream(live_session):
+    """The export is the sync path, so completeness is the thing to check.
+
+    Row count against the account's own total, and every rating against the
+    paged stream it replaces: this is the only place a change to the CSV
+    endpoint — a dropped column, a truncated body, a swapped pair of float
+    columns — can be noticed at all.
+    """
+    expected = live_session.account().num_ratings
+    rows = live_session.export_ratings()
+
+    assert len(rows) == expected
+    for row in rows:
+        assert CANONICAL_IMDB.fullmatch(row.imdb_id or ""), row.movie_id
+        assert row.title
+        assert row.rating is not None
+        assert row.average_rating is not None
+
+    # If both columns were read from the same place this would be all-equal.
+    assert any(row.rating != row.average_rating for row in rows)
+
+    streamed = {r.movie_id: r.rating for r in live_session.iter_ratings(page_size=50)}
+    assert {row.movie_id: row.rating for row in rows} == streamed
+
+
+def test_lookup_resolves_an_imdb_id_to_a_movielens_movie(live_session):
+    """The write path for a film MovieLens has never shown us."""
+    found = live_session.find_movie_by_imdb_id("tt0133093", "The Matrix")
+
+    assert found is not None
+    assert found.movie_id == 2571
+    assert found.imdb_id == "tt0133093"
+
+
+def test_lookup_picks_the_right_film_out_of_several_sharing_a_title(live_session):
+    """Three live films are titled "Parasite" and only one is Bong Joon-ho's."""
+    found = live_session.find_movie_by_imdb_id("tt6751668", "Parasite")
+
+    assert found is not None
+    assert found.movie_id == 202439
+    assert found.year == 2019
+
+
+def test_lookup_returns_none_for_a_film_movielens_does_not_carry(live_session):
+    """A well-formed id that is not in the catalogue is an answer, not a fault."""
+    assert live_session.find_movie_by_imdb_id("tt9999999", "The Matrix") is None
+
+
+def test_the_two_documented_traps_still_return_nothing_useful(live_session):
+    """Drift watch on the reason this lookup is shaped the way it is.
+
+    If MovieLens ever starts honouring ``imdbMovieId``, this fails and the
+    lookup can be simplified. Until then it records that the parameter is
+    ignored — the search comes back full of unrelated films — and that an id
+    used as a query matches nothing.
+    """
+    by_param = list(
+        live_session._iter_explore({"imdbMovieId": "0133093"}, 5, max_pages=1)
+    )
+    assert by_param, "the ignored-parameter search returned nothing at all"
+    assert all(r["movie"]["imdbMovieId"] != "0133093" for r in by_param)
+
+    as_query = list(live_session._iter_explore({"q": "tt0133093"}, 5, max_pages=1))
+    assert as_query == []

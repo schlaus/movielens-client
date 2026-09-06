@@ -9,6 +9,7 @@ from .client import DEFAULT_BASE_URL, MovieLensSession, login
 from .errors import AuthenticationError, MovieLensAPIError, MovieLensError
 from .models import (
     Account,
+    ExportedRating,
     Movie,
     MovieDetail,
     Prediction,
@@ -27,6 +28,7 @@ __all__ = [
     "MovieLensAPIError",
     "Account",
     "Movie",
+    "ExportedRating",
     "Rating",
     "Prediction",
     "MovieDetail",

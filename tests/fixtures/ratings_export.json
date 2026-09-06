@@ -1,0 +1,5 @@
+{
+  "status_code": 200,
+  "json": null,
+  "text": "movie_id,imdb_id,tmdb_id,rating,average_rating,title\r\n50,0114814,629,4.0,4.25539,The Usual Suspects (1995)\r\n260,0076759,11,4.0,4.08613,Star Wars (1977)\r\n296,0110912,680,4.0,4.1953,Pulp Fiction (1994)\r\n318,0111161,278,4.0,4.4147,The Shawshank Redemption (1994)\r\n589,0103064,280,4.0,3.97201,Terminator 2: Judgment Day (1991)\r\n1196,0080684,1891,4.0,4.11513,The Empire Strikes Back (1980)\r\n1197,0093779,2493,4.0,4.10809,The Princess Bride (1987)\r\n1198,0082971,85,4.0,4.09598,Raiders of the Lost Ark (1981)\r\n1200,0090605,679,4.0,4.00774,Aliens (1986)\r\n1210,0086190,1892,4.0,3.98127,Return of the Jedi (1983)\r\n1270,0088763,105,4.0,3.97256,Back to the Future (1985)\r\n1291,0097576,89,4.0,3.98542,Indiana Jones and the Last Crusade (1989)\r\n2571,0133093,603,4.5,4.16544,The Matrix (1999)\r\n2959,0137523,550,4.0,4.23737,Fight Club (1999)\r\n58559,0468569,155,4.0,4.18883,The Dark Knight (2008)\r\n79132,1375666,27205,4.0,4.17296,Inception (2010)\r\n109487,0816692,157336,4.0,4.1702,Interstellar (2014)\r\n"
+}
