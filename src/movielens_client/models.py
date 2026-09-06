@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import csv
+import io
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from contextlib import contextmanager
@@ -16,6 +18,7 @@ __all__ = [
     "Rating",
     "Prediction",
     "MovieDetail",
+    "ExportedRating",
 ]
 
 
@@ -214,3 +217,94 @@ def detail_from_result(result: dict[str, Any]) -> MovieDetail:
         wishlist=bool(user_data.get("wishlist")),
         hidden=bool(user_data.get("hidden")),
     )
+
+
+# ------------------------------------------------------------------ CSV export
+
+#: The columns of ``/api/users/me/movielens-ratings.csv``, verified live on
+#: 2026-09-06. Read by name, never by position: an added column would
+#: otherwise shift ``title`` and nothing would say so.
+EXPORT_COLUMNS = (
+    "movie_id",
+    "imdb_id",
+    "tmdb_id",
+    "rating",
+    "average_rating",
+    "title",
+)
+
+
+@dataclass(frozen=True)
+class ExportedRating:
+    """One row of the CSV export.
+
+    Deliberately flat, and deliberately not a :class:`Movie`. The CSV carries
+    no release year and no genres, so wrapping a Movie would report ``year:
+    None`` for a film whose year is sitting in the title string — structure
+    invented where there is none. ``title`` is passed through exactly as
+    exported, year in parentheses included.
+
+    ``rating`` is this account's. ``average_rating`` is the community mean and
+    is never the user's opinion of anything.
+    """
+
+    movie_id: int
+    imdb_id: str | None
+    tmdb_id: int | None
+    rating: float | None
+    average_rating: float | None
+    title: str
+
+
+def _int_or_none(raw: Any) -> int | None:
+    if raw is None or str(raw).strip() == "":
+        return None
+    try:
+        return int(str(raw).strip())
+    except (TypeError, ValueError):
+        return None
+
+
+def parse_ratings_csv(text: str) -> list[ExportedRating]:
+    """Parse the ratings export into typed rows.
+
+    Parsed with :mod:`csv`, never by splitting on commas or newlines: titles
+    carry commas, escaped quotes and — in principle — embedded newlines, and
+    the body ends with a trailing CRLF that a line splitter turns into a
+    phantom row.
+
+    The header is checked before any row is read. An expired session can
+    answer ``200`` with an HTML login page; parsed loosely that is zero rows,
+    and a consumer mirroring deletions would read it as an account that has
+    rated nothing. A body whose header is not the export's is a shape problem
+    and raises :class:`MovieLensAPIError` — extra columns are tolerated,
+    missing ones are not.
+    """
+    reader = csv.DictReader(io.StringIO(text))
+    columns = set(reader.fieldnames or ())
+    missing = [name for name in EXPORT_COLUMNS if name not in columns]
+    if missing:
+        raise MovieLensAPIError(
+            "MovieLens did not return the ratings export: its header is missing "
+            f"{', '.join(missing)}"
+        )
+
+    rows: list[ExportedRating] = []
+    with _shape_errors("ratings export"):
+        for row in reader:
+            movie_id = _int_or_none(row.get("movie_id"))
+            if movie_id is None:
+                raise MovieLensAPIError(
+                    "MovieLens returned an export row with no usable movie_id"
+                )
+            rows.append(
+                ExportedRating(
+                    movie_id=movie_id,
+                    imdb_id=canonical_imdb_id(row.get("imdb_id")),
+                    tmdb_id=_int_or_none(row.get("tmdb_id")),
+                    rating=_float_or_none(row.get("rating")),
+                    average_rating=_float_or_none(row.get("average_rating")),
+                    title=row.get("title") or "",
+                )
+            )
+    return rows

@@ -15,10 +15,12 @@ import requests
 from .errors import AuthenticationError, MovieLensAPIError
 from .models import (
     Account,
+    ExportedRating,
     MovieDetail,
     Prediction,
     Rating,
     detail_from_result,
+    parse_ratings_csv,
     prediction_from_result,
     rating_from_result,
 )
@@ -42,6 +44,12 @@ _JSON_HEADERS = {
     "Content-Type": "application/json",
     "Accept": "application/json",
 }
+
+#: The export endpoint answers ``text/csv`` whatever is asked for — verified
+#: 2026-09-06 — but the session sends ``Accept: application/json`` for every
+#: other call, and asking a CSV endpoint for JSON is how that would break if
+#: MovieLens ever started honouring the header.
+_CSV_HEADERS = {"Accept": "text/csv"}
 
 
 def _new_http() -> requests.Session:
@@ -123,6 +131,24 @@ class MovieLensSession:
             {"hasRated": "no", "sortBy": "prediction"}, page_size
         ):
             yield prediction_from_result(result)
+
+    def export_ratings(self) -> list[ExportedRating]:
+        """``GET /api/users/me/movielens-ratings.csv`` → the whole history.
+
+        One request for every rating on the account, rather than the dozens of
+        pages :meth:`iter_ratings` walks; that removes the paging failure modes
+        from a full sync entirely. Returns a list, not a generator: the body
+        arrives whole, so there is nothing to be lazy about, and deferring the
+        parse would surface shape errors half way through a consumer's write.
+
+        The rows carry ``average_rating`` — the community mean — alongside the
+        user's ``rating``, and no ``prediction`` or ``rated_at``. When those
+        two matter, :meth:`iter_ratings` still carries them.
+        """
+        text = self._text_request(
+            "GET", "/api/users/me/movielens-ratings.csv", headers=_CSV_HEADERS
+        )
+        return parse_ratings_csv(text)
 
     def movie(self, movie_id: int) -> MovieDetail:
         """``GET /api/movies/<id>`` → the movie plus this user's data for it."""
@@ -240,6 +266,101 @@ class MovieLensSession:
             timeout=self._timeout,
         )
 
+    def _text_request(
+        self,
+        method: str,
+        path: str,
+        *,
+        params: Mapping[str, Any] | None = None,
+        headers: Mapping[str, str] | None = None,
+    ) -> str:
+        return _text_request(
+            self._http,
+            method,
+            f"{self._base_url}{path}",
+            params=params,
+            headers=headers,
+            timeout=self._timeout,
+        )
+
+
+def _send(
+    http: Any,
+    method: str,
+    url: str,
+    *,
+    params: Mapping[str, Any] | None,
+    payload: Mapping[str, Any] | None,
+    timeout: float,
+    headers: Mapping[str, str] | None = None,
+) -> Any:
+    """Issue the request, turning transport trouble into MovieLensAPIError.
+
+    Never let a raw requests exception escape: the consumer would have to
+    depend on requests to tell an outage from a bad password.
+    """
+    try:
+        return http.request(
+            method,
+            url,
+            params=params,
+            json=payload,
+            timeout=timeout,
+            headers=headers,
+        )
+    except requests.RequestException as exc:
+        raise MovieLensAPIError(f"request to MovieLens failed: {exc}") from exc
+
+
+def _raise_for_status(status_code: int, message: str) -> None:
+    """401/403 → AuthenticationError; any other 4xx/5xx → MovieLensAPIError.
+
+    Deliberately never widened: a 500 is an outage whatever endpoint it hits,
+    and routing it to AuthenticationError would tell the consumer that good
+    credentials are bad.
+    """
+    if status_code in (401, 403):
+        raise AuthenticationError(message or "MovieLens rejected the session")
+    if status_code >= 400:
+        raise MovieLensAPIError(
+            message or f"HTTP {status_code}", status_code=status_code
+        )
+
+
+def _message_of(body: Any) -> str:
+    return str(body.get("message") or "") if isinstance(body, dict) else ""
+
+
+def _json_of(response: Any) -> Any:
+    try:
+        return response.json()
+    except (ValueError, requests.RequestException):
+        return None
+
+
+def _text_request(
+    http: Any,
+    method: str,
+    url: str,
+    *,
+    params: Mapping[str, Any] | None = None,
+    headers: Mapping[str, str] | None = None,
+    timeout: float,
+) -> str:
+    """Fetch a body that is not JSON — today, the ratings CSV export.
+
+    Shares the status handling with :func:`_request` so a rejected session is
+    an :class:`AuthenticationError` here too, but does not require a
+    ``status: success`` envelope: a CSV body has no envelope to carry one. The
+    body is returned unparsed; deciding whether it is really CSV is the
+    parser's job, and it does refuse anything else.
+    """
+    response = _send(
+        http, method, url, params=params, payload=None, timeout=timeout, headers=headers
+    )
+    _raise_for_status(response.status_code, _message_of(_json_of(response)))
+    return response.text
+
 
 def _request(
     http: Any,
@@ -261,27 +382,18 @@ def _request(
     means the credentials were rejected. It deliberately does not widen 4xx or
     5xx into an auth failure: those are outages whatever endpoint they hit.
     """
-    try:
-        response = http.request(
-            method, url, params=params, json=payload, timeout=timeout
-        )
-    except requests.RequestException as exc:
-        # Never let a raw requests exception escape: the consumer would have to
-        # depend on requests to tell an outage from a bad password.
-        raise MovieLensAPIError(f"request to MovieLens failed: {exc}") from exc
-
+    response = _send(
+        http, method, url, params=params, payload=payload, timeout=timeout
+    )
     status_code = response.status_code
-    try:
-        body = response.json()
-    except (ValueError, requests.RequestException):
-        body = None
+    body = _json_of(response)
 
-    message = ""
-    if isinstance(body, dict):
-        message = str(body.get("message") or "")
-
-    if status_code in (401, 403):
-        raise AuthenticationError(message or "MovieLens rejected the session")
+    # Deliberately not conditioned on auth_failure. A rejected login is a 401
+    # and is caught here; a 200 carrying status: fail is caught below. Nothing
+    # else is a credential rejection, so routing 4xx/5xx to AuthenticationError
+    # at login would turn a MovieLens outage into "your password is wrong" —
+    # the consumer would stop deferring and mark good credentials invalid.
+    _raise_for_status(status_code, _message_of(body))
 
     if not isinstance(body, dict):
         raise MovieLensAPIError(
@@ -289,22 +401,11 @@ def _request(
             status_code=status_code,
         )
 
-    if status_code >= 400:
-        # Deliberately not conditioned on auth_failure. A rejected login is a
-        # 401 and was caught above; a 200 carrying status: fail is caught
-        # below. Nothing else reaching here is a credential rejection, so
-        # routing 4xx/5xx to AuthenticationError at login would turn a
-        # MovieLens outage into "your password is wrong" — the consumer would
-        # stop deferring and mark good credentials invalid.
-        raise MovieLensAPIError(
-            message or f"HTTP {status_code}", status_code=status_code
-        )
-
     if body.get("status") != "success":
         # A 200 carrying status: fail. On login this means bad credentials; if
         # it were read as success the caller would see 401s from then on and
         # mistake a bad password for an outage.
-        detail = message or "MovieLens reported failure"
+        detail = _message_of(body) or "MovieLens reported failure"
         if auth_failure:
             raise AuthenticationError(detail)
         raise MovieLensAPIError(detail, status_code=status_code)
