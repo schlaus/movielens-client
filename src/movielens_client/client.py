@@ -16,11 +16,13 @@ from .errors import AuthenticationError, MovieLensAPIError
 from .models import (
     Account,
     ExportedRating,
+    Movie,
     MovieDetail,
     Prediction,
     Rating,
     detail_from_result,
     parse_ratings_csv,
+    canonical_imdb_id,
     prediction_from_result,
     rating_from_result,
 )
@@ -30,6 +32,15 @@ __all__ = ["MovieLensSession", "login", "DEFAULT_BASE_URL"]
 DEFAULT_BASE_URL = "https://movielens.org"
 DEFAULT_TIMEOUT = 30.0
 DEFAULT_PAGE_SIZE = 100
+
+#: Bounds for :meth:`MovieLensSession.find_movie_by_imdb_id`. A title search
+#: is the only way to reach a film by IMDb id, and a common word matches
+#: thousands — the recorded default page reports 10,000 items. 4 pages of 50
+#: is 200 candidates: comfortably more than any real title search needs (the
+#: live "Parasite" search returns 9, "The Matrix" 18) and a hard stop on the
+#: pathological one.
+SEARCH_PAGE_SIZE = 50
+SEARCH_MAX_PAGES = 4
 
 #: MovieLens' explore endpoint is one-indexed. ``page=0`` answers with
 #: ``500 MovieLens application error MLERR0``.
@@ -150,6 +161,66 @@ class MovieLensSession:
         )
         return parse_ratings_csv(text)
 
+    def find_movie_by_imdb_id(
+        self,
+        imdb_id: str | None,
+        title: str,
+        *,
+        page_size: int = SEARCH_PAGE_SIZE,
+        max_pages: int = SEARCH_MAX_PAGES,
+    ) -> Movie | None:
+        """Resolve an IMDb id to a MovieLens movie, or ``None``.
+
+        Rating a film MovieLens has never shown the caller needs its
+        ``movieId``, and there is no direct lookup. The only route that works
+        is ``GET /api/movies/explore?q=<title>`` matched on
+        ``movie.imdbMovieId`` — so ``title`` is what is searched with and
+        ``imdb_id`` is what decides the answer.
+
+        Two things that look like lookups are not, both verified on
+        2026-09-06 and both silent about it:
+
+        * ``explore?imdbMovieId=…`` ignores the parameter and answers an
+          unrelated default page — a 10,000-item result set whose first film
+          has nothing to do with the id. Nothing errors.
+        * ``explore?q=tt0133093`` answers zero results.
+
+        So the match is on the id and never on position or title equality: a
+        search for "Parasite" returns three films titled exactly that, with
+        three different IMDb ids, and the wanted one is fourth. Titles differ
+        by language and subtitle where ids do not.
+
+        ``None`` is returned when nothing matches — a film MovieLens does not
+        carry is a normal answer, not a failure. An outage still raises, so
+        the caller can tell "not there" from "could not ask".
+
+        No ``year`` parameter: appending a year to the query returns zero
+        results (``q=Parasite 2019`` and ``q=Parasite (2019)`` both did on
+        2026-09-06), and filtering candidates by year could only *lose* the
+        right film, since MovieLens' ``releaseYear`` and IMDb's disagree for
+        festival and limited releases. The match is on a unique id; there is
+        nothing left for a year to disambiguate.
+        """
+        wanted = canonical_imdb_id(imdb_id)
+        if wanted is None:
+            # An id that canonicalises to nothing must never be compared with
+            # a result's id: MovieLens carries films with no imdbMovieId, and
+            # None == None would return one of them — an unrelated film, which
+            # the caller would then rate.
+            return None
+
+        query = (title or "").strip()
+        if not query:
+            return None
+
+        for result in self._iter_explore(
+            {"q": query}, page_size, max_pages=max_pages
+        ):
+            movie = Movie.from_payload(result.get("movie") or {})
+            if movie.imdb_id is not None and movie.imdb_id == wanted:
+                return movie
+        return None
+
     def movie(self, movie_id: int) -> MovieDetail:
         """``GET /api/movies/<id>`` → the movie plus this user's data for it."""
         body = self._request("GET", f"/api/movies/{int(movie_id)}")
@@ -197,7 +268,11 @@ class MovieLensSession:
     # ---------------------------------------------------------------- interns
 
     def _iter_explore(
-        self, params: Mapping[str, Any], page_size: int
+        self,
+        params: Mapping[str, Any],
+        page_size: int,
+        *,
+        max_pages: int | None = None,
     ) -> Iterator[dict[str, Any]]:
         """Walk ``/api/movies/explore`` a page at a time.
 
@@ -205,12 +280,20 @@ class MovieLensSession:
         Stops on the first empty page, on reaching ``pager.totalItems``, or if
         the server stops advancing the page parameter — that last guard turns a
         server-side surprise into a stop rather than an endless loop.
+
+        ``max_pages`` bounds the walk. It is None for the account's own
+        streams, which must run to the end or silently truncate a mirror, and
+        set for title searches, where the caller wants one film out of a
+        result set that can report ten thousand.
         """
         if page_size < 1:
             raise ValueError("page_size must be at least 1")
+        if max_pages is not None and max_pages < 1:
+            raise ValueError("max_pages must be at least 1")
 
         page = FIRST_PAGE
         yielded = 0
+        pages_read = 0
         previous_first_id: Any = None
 
         while True:
@@ -228,6 +311,7 @@ class MovieLensSession:
             if not results:
                 return
 
+            pages_read += 1
             first_id = results[0].get("movieId")
             if previous_first_id is not None and first_id == previous_first_id:
                 return  # the page parameter is not advancing; stop, don't loop
@@ -239,6 +323,8 @@ class MovieLensSession:
 
             total_items = (data.get("pager") or {}).get("totalItems")
             if isinstance(total_items, int) and yielded >= total_items:
+                return
+            if max_pages is not None and pages_read >= max_pages:
                 return
             # Deliberately no "short page means last page" shortcut. Asking for
             # 100 and getting 50 would end the stream silently if MovieLens

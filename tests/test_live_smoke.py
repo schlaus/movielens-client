@@ -114,3 +114,44 @@ def test_csv_export_is_complete_and_agrees_with_the_paged_stream(live_session):
 
     streamed = {r.movie_id: r.rating for r in live_session.iter_ratings(page_size=50)}
     assert {row.movie_id: row.rating for row in rows} == streamed
+
+
+def test_lookup_resolves_an_imdb_id_to_a_movielens_movie(live_session):
+    """The write path for a film MovieLens has never shown us."""
+    found = live_session.find_movie_by_imdb_id("tt0133093", "The Matrix")
+
+    assert found is not None
+    assert found.movie_id == 2571
+    assert found.imdb_id == "tt0133093"
+
+
+def test_lookup_picks_the_right_film_out_of_several_sharing_a_title(live_session):
+    """Three live films are titled "Parasite" and only one is Bong Joon-ho's."""
+    found = live_session.find_movie_by_imdb_id("tt6751668", "Parasite")
+
+    assert found is not None
+    assert found.movie_id == 202439
+    assert found.year == 2019
+
+
+def test_lookup_returns_none_for_a_film_movielens_does_not_carry(live_session):
+    """A well-formed id that is not in the catalogue is an answer, not a fault."""
+    assert live_session.find_movie_by_imdb_id("tt9999999", "The Matrix") is None
+
+
+def test_the_two_documented_traps_still_return_nothing_useful(live_session):
+    """Drift watch on the reason this lookup is shaped the way it is.
+
+    If MovieLens ever starts honouring ``imdbMovieId``, this fails and the
+    lookup can be simplified. Until then it records that the parameter is
+    ignored — the search comes back full of unrelated films — and that an id
+    used as a query matches nothing.
+    """
+    by_param = list(
+        live_session._iter_explore({"imdbMovieId": "0133093"}, 5, max_pages=1)
+    )
+    assert by_param, "the ignored-parameter search returned nothing at all"
+    assert all(r["movie"]["imdbMovieId"] != "0133093" for r in by_param)
+
+    as_query = list(live_session._iter_explore({"q": "tt0133093"}, 5, max_pages=1))
+    assert as_query == []
