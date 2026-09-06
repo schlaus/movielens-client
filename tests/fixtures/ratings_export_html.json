@@ -1,0 +1,6 @@
+{
+  "_note": "Synthetic. An expired session answering a browser-shaped 200 with an HTML login page instead of CSV; the live service answers 401 JSON to an unauthenticated CSV request (see unauthenticated_401.json), but a 200 of HTML is the failure that would parse to zero rows and be read by a mirroring consumer as 'this account has no ratings'.",
+  "status_code": 200,
+  "json": null,
+  "text": "<!DOCTYPE html>\r\n<html lang=\"en\">\r\n<head><title>MovieLens</title></head>\r\n<body><div id=\"content\">Please sign in to continue.</div></body>\r\n</html>\r\n"
+}

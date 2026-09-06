@@ -1,12 +1,17 @@
 """Offline test harness.
 
-The fixtures in ``tests/fixtures`` are JSON recorded from the live service on
-2026-09-06, with one exception: ``movie_detail_no_prediction.json`` is derived
-from the recorded ``movie_detail.json`` with ``prediction`` nulled, because the
-test account is past cold start and a genuine null could not be captured
-without discarding its ratings. That file says so in a ``_note`` key. Some
-tests also mutate a loaded fixture in-place to construct a shape the live
-account cannot produce — each says why.
+The fixtures in ``tests/fixtures`` are recorded from the live service on
+2026-09-06. A few are not recordings but constructions, because the live
+account cannot produce the shape in question: ``movie_detail_no_prediction``
+(the account is past cold start), ``ratings_export_awkward`` (no title on the
+account contains a comma, a quote or a newline) and ``ratings_export_html``
+(an expired session answering HTML with a 200). Each of those says so in a
+``_note`` key. Some tests also mutate a loaded fixture in-place to construct a
+shape the live account cannot produce — each says why.
+
+A fixture whose ``json`` is null and whose ``text`` is set records a non-JSON
+body: ``FakeResponse.json()`` raises ``ValueError`` for it, exactly as
+``requests`` does. That is how the CSV export is served offline.
 
 Nothing here touches the network: the client accepts an injected
 ``requests.Session``-alike, and ``FakeHTTP`` is that alike.
@@ -62,10 +67,18 @@ class FakeHTTP:
         self.headers: dict[str, str] = {}
         self.closed = False
 
-    def request(self, method, url, *, params=None, json=None, timeout=None, **kw):
+    def request(
+        self, method, url, *, params=None, json=None, timeout=None, headers=None, **kw
+    ):
         path = urlparse(url).path
         self.calls.append(
-            {"method": method.upper(), "path": path, "params": params, "json": json}
+            {
+                "method": method.upper(),
+                "path": path,
+                "params": params,
+                "json": json,
+                "headers": headers or {},
+            }
         )
         handler = self.routes.get((method.upper(), path))
         if handler is None:

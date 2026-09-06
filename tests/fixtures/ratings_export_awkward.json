@@ -1,0 +1,6 @@
+{
+  "_note": "Synthetic, not recorded: the live account carries no title with a comma, a quote or a newline in it, and no IMDb id longer than seven digits. Every hostile shape the CSV format permits is here on purpose - a title with a comma, a title with escaped double quotes, a title with an embedded CRLF, an eight-digit id next to zero-padded ones, and the trailing CRLF the real export also ends with. rating differs from average_rating on every row, and on the first row both values are plausible user ratings so reading the wrong column cannot be spotted by the value alone.",
+  "status_code": 200,
+  "json": null,
+  "text": "movie_id,imdb_id,tmdb_id,rating,average_rating,title\r\n50,0114814,629,4.0,3.5,\"The Usual Suspects, Redux (1995)\"\r\n202439,6751668,496243,3.0,4.5,\"Parasite \"\"Gisaengchung\"\" (2019)\"\r\n306771,25971184,1113901,0.5,3.2,Parasite Lady (2023)\r\n777,0000012,88,2.0,4.1,\"A Trip to the Moon\r\n(Le Voyage dans la Lune) (1902)\"\r\n"
+}

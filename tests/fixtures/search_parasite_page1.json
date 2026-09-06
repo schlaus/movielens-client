@@ -1,0 +1,591 @@
+{
+  "status_code": 200,
+  "json": {
+    "status": "success",
+    "data": {
+      "title": null,
+      "description": null,
+      "url": null,
+      "searchResults": [
+        {
+          "movieId": 2256,
+          "rec_val_type": "",
+          "tstamp": null,
+          "movie": {
+            "movieId": 2256,
+            "tmdbMovieId": 48311,
+            "imdbMovieId": "0084472",
+            "title": "Parasite",
+            "originalTitle": "Parasite",
+            "mpaa": "",
+            "runtime": 85,
+            "releaseDate": "1982-03-12",
+            "dvdReleaseDate": "2002-08-06",
+            "genres": [
+              "Horror",
+              "Science Fiction"
+            ],
+            "languages": [
+              "English"
+            ],
+            "directors": [
+              "Charles Band"
+            ],
+            "actors": [
+              "Robert Glaudini",
+              "Demi Moore",
+              "Luca Bercovici",
+              "James Davidson",
+              "Al Fann",
+              "Tom Villard",
+              "Scott Thomson",
+              "Cherie Currie",
+              "Vivian Blaine",
+              "Joanelle Romero",
+              "Cheryl Smith",
+              "James Cavan"
+            ],
+            "posterPath": "/4DGPORlVIDIQvsuSDnM4uXKMjWS.jpg",
+            "backdropPaths": [
+              "/5qVLF9WTdBDA08fsZ9H5clJ6umI.jpg",
+              "/AcZjBskxs7NioQOVj6DQaMbet34.jpg",
+              "/dLoJLBoulWdv4ZvXQJPxWPsEx04.jpg",
+              "/aEIWt7Kgd7EBvzMZaLqweAjz85M.jpg",
+              "/9Qaszyx7jsd884R7UMb83eGLqMZ.jpg",
+              "/l7ZJejcYz54a8MrJLeHaUWq2FMi.jpg",
+              "/vyyv1iD5yxgFRuPZVOe2bgofB9v.jpg",
+              "/5DjL10iR8OJ9MLI2F2HvWBhGvR1.jpg",
+              "/uUNFXjuDPVPzPq7hmzP2IVL3ecx.jpg",
+              "/a96UVbzbq2jlJIDsqnOHd8dnMMP.jpg",
+              "/mWH14SOZmLN4pstFouWuGPpZg1q.jpg",
+              "/kFtYAWpRaWhzV7XLSbMOapzY43V.jpg",
+              "/6oFpVwMHOfyODE7bgp95F3MAN6z.jpg",
+              "/um78pkdbQXRuB3QUdAQm599CPip.jpg",
+              "/qJkl10zOdTe5DQdYZTxxYDQP4YJ.jpg",
+              "/A94JEnx0CLZzuhmjqzG1BeZwGOl.jpg",
+              "/7aOc11USDSMcS3ChIu5c6ytZNI4.jpg",
+              "/rFzMZ7iB8Jq2JhptPUmojXoBXSm.jpg",
+              "/ylB63RBB3xpJKnPNxhFVSmwzsV5.jpg",
+              "/jVCZfrVIWpd4MDGMKfpn1q2hz7i.jpg",
+              "/2SC4SdoFrp2jFQfEQVJ8JACSFCh.jpg",
+              "/8rG8ZoPLUMKMcwYBJI1yIG1HA9F.jpg",
+              "/9ukNKIptZHgjZTiuubFuo9ebmDi.jpg",
+              "/ru1fDchhq1lotuD7MoLYAqP8cAL.jpg",
+              "/bQ1myMCt8fSvuHU8UVF8R4iNEdC.jpg",
+              "/o5pp6CuWGMFRzr1DQLpJRsoPTSy.jpg",
+              "/nPSTETWMkryo0e5THuDjkVYg4AY.jpg",
+              "/bkfLctVm7payYV3Q967s4p6p7r8.jpg",
+              "/yiNVdqZZucdPQZy6RCLia1Aljql.jpg",
+              "/hvqLA6eirsPVcWYtjTxjRUzLps6.jpg",
+              "/1enkMZX2Fi2OWmaBp7VSLNLmL1z.jpg"
+            ],
+            "youtubeTrailerIds": [
+              "cGnTUz_4EZE"
+            ],
+            "plotSummary": "Paul Dean has created a deadly parasite that is now attached to his stomach. He and his female companion, Patricia Welles, must find a way to destroy it while also trying to avoid Ricus & his rednecks, and an evil government agent named Merchant.",
+            "numRatings": 167,
+            "avgRating": 2.17964,
+            "releaseYear": "1982"
+          },
+          "movieUserData": {
+            "userId": 443285,
+            "movieId": 2256,
+            "rating": null,
+            "dateRated": null,
+            "prediction": 2.3183123488931483,
+            "wishlist": false,
+            "hidden": false,
+            "predictionDetails": {
+              "primaryPrediction": 2.3183123488931483,
+              "primaryPredictionType": "FALLBACK",
+              "components": [
+                {
+                  "pred": 2.3183123488931483,
+                  "type": "FALLBACK"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "movieId": 317839,
+          "rec_val_type": "",
+          "tstamp": null,
+          "movie": {
+            "movieId": 317839,
+            "tmdbMovieId": 291545,
+            "imdbMovieId": "0352699",
+            "title": "Parasite",
+            "originalTitle": "Parasite",
+            "mpaa": "",
+            "runtime": 93,
+            "releaseDate": "2004-01-01",
+            "dvdReleaseDate": null,
+            "genres": [
+              "Horror"
+            ],
+            "languages": [
+              "English"
+            ],
+            "directors": [
+              "Andrew Prendergast"
+            ],
+            "actors": [
+              "Gary Condes",
+              "Saskia Gould",
+              "Conrad Whitaker",
+              "G.W. Stevens",
+              "Oliver Price",
+              "Margaret Thompson"
+            ],
+            "posterPath": "/lDsUWvTHbSsI62u63S8B6Jjgztb.jpg",
+            "backdropPaths": [],
+            "youtubeTrailerIds": [],
+            "plotSummary": "An abandoned oil rig in the middle of the North Sea. Dr. Christine Hansen is charged with the task of testing an experimental cleaning fluid which could revolutionize the oil industry. Hired to carry out the tests is Jacob Rasmussen and his rough and ready crew of deconstruction engineers. But within hours one of them is missing under suspicious circumstances. Things go from bad to worse when environmental activist Mickey Hennessey and his hard-bitten associates seize control of the rig, taking everybody on board hostage. But very soon oil workers and environmentalists will be compelled to join forces in an evolutionary battle for survival. For a savage new life-form has made its home on the rig. And it is hungry.",
+            "numRatings": 1,
+            "avgRating": 1.5,
+            "releaseYear": "2004"
+          },
+          "movieUserData": {
+            "userId": 443285,
+            "movieId": 317839,
+            "rating": null,
+            "dateRated": null,
+            "prediction": 3.4240104130122875,
+            "wishlist": false,
+            "hidden": false,
+            "predictionDetails": {
+              "primaryPrediction": 3.4240104130122875,
+              "primaryPredictionType": "FALLBACK",
+              "components": [
+                {
+                  "pred": 3.4240104130122875,
+                  "type": "FALLBACK"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "movieId": 99243,
+          "rec_val_type": "",
+          "tstamp": null,
+          "movie": {
+            "movieId": 99243,
+            "tmdbMovieId": 35818,
+            "imdbMovieId": "0182357",
+            "title": "Les Parasites",
+            "originalTitle": "Les Parasites",
+            "mpaa": "",
+            "runtime": 90,
+            "releaseDate": "1999-01-20",
+            "dvdReleaseDate": null,
+            "genres": [
+              "Drama",
+              "Comedy",
+              "Romance"
+            ],
+            "languages": [
+              "Français"
+            ],
+            "directors": [
+              "Philippe de Chauveron"
+            ],
+            "actors": [
+              "Oulage Abour",
+              "Sabine Bail",
+              "Pascal Elbé",
+              "Atmen Kelif",
+              "Élie Semoun",
+              "Estelle Skornik",
+              "Roland Marchisio",
+              "Frédéric Saurel",
+              "Sabrina Van Tassel",
+              "Leonor Varela",
+              "Jean-François Gallotte",
+              "Ariane Pirié",
+              "Jean-Luc Porraz",
+              "André Penvern",
+              "Marie-Christine Adam",
+              "Noam Morgensztern",
+              "Franck Dubosc",
+              "Pierre Amzallag",
+              "Didier Agostini",
+              "Johanna Landau",
+              "Lionel Abelanski"
+            ],
+            "posterPath": "/7MyDVywaF6OcBSmPOUuhjbxI44i.jpg",
+            "backdropPaths": [
+              "/rLiHrIoUbsBm6SgImA8JF244VEv.jpg",
+              "/eMz6jLaXw6v01RnkNjrvD3AQJBE.jpg",
+              "/ly4LAItQ3Iit8wWyUhycgcgcOcR.jpg",
+              "/Ahy2WSlKIjayb3On4LgW0nXQcyF.jpg",
+              "/8NCQcEPJRUBKj4REINWbXxnV6x1.jpg",
+              "/mI1eSHNx8nhu2Fl41AcWsISV5Vj.jpg",
+              "/5z9yAsF5yX2YlmCWspxjU25QYe8.jpg"
+            ],
+            "youtubeTrailerIds": [
+              "P9vRnARqh8A"
+            ],
+            "plotSummary": "Oulage has it all planned: New Year's eve, at the stroke of midnight, he'll finally kiss Brigitte, the girl he's madly in love with. That'll be the moment, because Brigitte is having a costume party. Oulage has it all planned—except for the fact that Brigitte has also invited a gang of truly parasitical friends: an old girl friend who never leaves Brigitte's side, a manic-depressive police officer, a paranoid psychopath, a cannabis-addict suffering withdrawal pains, a stunning Cuban woman on the prowl for immigration papers, and many others who do everything to ruin Oulage's life.",
+            "numRatings": 2,
+            "avgRating": 4.5,
+            "releaseYear": "1999"
+          },
+          "movieUserData": {
+            "userId": 443285,
+            "movieId": 99243,
+            "rating": null,
+            "dateRated": null,
+            "prediction": 3.573543204553815,
+            "wishlist": false,
+            "hidden": false,
+            "predictionDetails": {
+              "primaryPrediction": 3.573543204553815,
+              "primaryPredictionType": "FALLBACK",
+              "components": [
+                {
+                  "pred": 3.573543204553815,
+                  "type": "FALLBACK"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "movieId": 202439,
+          "rec_val_type": "",
+          "tstamp": null,
+          "movie": {
+            "movieId": 202439,
+            "tmdbMovieId": 496243,
+            "imdbMovieId": "6751668",
+            "title": "Parasite",
+            "originalTitle": "기생충",
+            "mpaa": "",
+            "runtime": 133,
+            "releaseDate": "2019-05-30",
+            "dvdReleaseDate": null,
+            "genres": [
+              "Comedy",
+              "Thriller",
+              "Drama"
+            ],
+            "languages": [
+              "English",
+              "Deutsch",
+              "한국어/조선말"
+            ],
+            "directors": [
+              "Bong Joon Ho"
+            ],
+            "actors": [
+              "Song Kang-ho",
+              "Lee Sun-kyun",
+              "Cho Yeo-jeong",
+              "Choi Woo-shik",
+              "Park So-dam",
+              "Lee Jung-eun",
+              "Jang Hye-jin",
+              "Park Myung-hoon",
+              "Jung Zi-so",
+              "Jung Hyeon-jun",
+              "Park Keun-rok",
+              "Jung Yi-seo",
+              "Cho Jae-myung",
+              "Jeong Ik-han",
+              "Kim Kyu-baek",
+              "Lee Dong-yong",
+              "Ahn Seong-bong",
+              "Yoon Young-woo",
+              "Park Jae-wook",
+              "Jeon Eun-mi",
+              "Kim Geon",
+              "Lee Joo-hyung",
+              "Kim Yeong-jo",
+              "Kim Jung-woo",
+              "Baek Seung-hwan",
+              "Je Seung-hyun",
+              "Park Hye-sook",
+              "Choi Ji-won",
+              "Lee Sang-kyung",
+              "Kim Ha-eon",
+              "Lee Ji-hye",
+              "Kim Bo-ryeong",
+              "Riccardo Ferraresso",
+              "Ko Kwan-jae",
+              "Lee Si-hoon",
+              "Seo Bok-hyeon",
+              "Shim Soo-mi",
+              "Yoon Hye-ree",
+              "Andreas Fronk",
+              "Anna Elisabeth Rihlmann",
+              "Rosie Peralta",
+              "Shin Seung-min",
+              "Park Seo-jun",
+              "Kwak Sin-ae",
+              "Choi Jeong-hyun",
+              "Lee Eun-hee",
+              "Park Jae-wan",
+              "Hwang In-gyeong",
+              "Lee Si-hoo",
+              "Ahn Jin-sang",
+              "Jeong Il-hwa",
+              "Seo Han-gyeol",
+              "Kim Se-in",
+              "Baek Dong-hyun"
+            ],
+            "posterPath": "/7IiTTgloJzvGI1TAYymCfbfl3vT.jpg",
+            "backdropPaths": [
+              "/hiKmpZMGZsrkA3cdce8a7Dpos1j.jpg",
+              "/TU9NIjwzjoKPwQHoHshkFcQUCG.jpg",
+              "/8eihUxjQsJ7WvGySkVMC0EwbPAD.jpg",
+              "/vbC0rzdrb7Ohc2TkbEbxtOABECe.jpg",
+              "/cM0pnzCF6T7u1AAEYgyCG6Sua6k.jpg",
+              "/ny5aCtglk2kceGAuAdiyqbhBBAf.jpg",
+              "/wCuUKiRaz0wEESsYqmQy005xvTE.jpg",
+              "/p0giX7IG8hXv6lr1KE3jFn0VqXA.jpg",
+              "/25tz24hlrqAbjhpHx1FhmfPH8Qf.jpg",
+              "/xOXIXRH6F2CDeEPwVSBe6y2v25V.jpg",
+              "/uG3m6jBwU8jUkt0jbUOj8Vb2Y11.jpg",
+              "/2MBBuXBE26AjRRTmj8poSFHLhhS.jpg",
+              "/hAtRKAi24kw4wyGB2IyvmFdVGHC.jpg",
+              "/ApiBzeaa95TNYliSbQ8pJv4Fje7.jpg",
+              "/2MtpR7lLmLKfH1v5Etniucu18Wm.jpg",
+              "/x6skktR5OS99lAX4JhmjCQYq490.jpg",
+              "/fjPhDdmJJNK68cx19X0QQuNuHNY.jpg",
+              "/cI1RBfqXbWaITTjcKGYLhd9F083.jpg",
+              "/1dVsHtkf8tNNwSfIQSTLnv741AJ.jpg",
+              "/jLgFsA0EpJMlz7Pw8o91kby618b.jpg",
+              "/qhs3Kfym23ZApyvBjwVRr7TMnwQ.jpg",
+              "/6LVpyYSTQdyRtJKOv8CtY4RW6us.jpg",
+              "/zujv4xmQrwDGdJ4YGl9TxUnrFcF.jpg",
+              "/oa1NfODv0U1cz0jtgmKccv2bmAv.jpg",
+              "/bERQoM81bIewmVbffRYAVnUoEqP.jpg",
+              "/otp5YXXxHvPR9z26RXgW0lAo10w.jpg",
+              "/8K001T1pcEDQSOYwEI1wKps1qcA.jpg",
+              "/zENgN9AAlpagEczUaVQWGDs4MLS.jpg",
+              "/rtsBa6lDZVfrwv28pedjE7Kk4c3.jpg",
+              "/fsTiM8pMGex2V8uiJpUxu2rR1i3.jpg",
+              "/gf1cTS5rYIgGDMvqjPZaTbD3Ycy.jpg",
+              "/yhS4HdgT0szo7ftm0QWGQ8hCtqL.jpg",
+              "/hVc1v03PRZKOH1at1Sd45GevRPU.jpg",
+              "/1K9poXmKeOnvDzwsxbHM4WCEqwQ.jpg",
+              "/dmXQPjjssQon28MKB3kqkSG1Xgm.jpg",
+              "/wmyNyzLUeolbp3XAz0UD4RFS5a4.jpg",
+              "/knTj7U46izMKF8uvxfK5CqbK0OC.jpg",
+              "/hi5n7qsHIGkWqJQjObSfc62gpu1.jpg",
+              "/i3MEdzIk5BrfUAEqn986B1dHWoH.jpg",
+              "/dTmqND3CUjC3tdTz25TWVATNY4N.jpg",
+              "/4npDqHC8nee1V68czoBhfO8KpHc.jpg",
+              "/tv2gjDxaxyhVNDESFLJ6oGT10sL.jpg",
+              "/zNTUIqdRBQAI4aJBGhwGvd6KpvW.jpg",
+              "/lOrkqTJ9PZydUtKlfkrtlc9ryNB.jpg",
+              "/eBLMslHrUdqxBo8DhvDZIGexACU.jpg",
+              "/4kGkU6feaU8L46c7AtiCl2KIgga.jpg",
+              "/3DNk9CzP5qiR2jYBq7XD3GdNyzy.jpg",
+              "/bH4abGGVrVPkgXZMIqS80yGk5og.jpg",
+              "/cS487CmI7GREXLWGpErNDFsICEV.jpg",
+              "/xnPYcbmTN3l58uU93wcboBXD0oW.jpg",
+              "/ogK82o4dLP60hmvcOnJYaU09jmH.jpg",
+              "/sQuCHhA5fVGgXurMe0SaIAcK7f7.jpg",
+              "/oQaBu6zymRiaHiUFyVV6zOFQPSJ.jpg",
+              "/mw0TtRJxeeFXWLiBLCGtArn0HWe.jpg",
+              "/bjDJzFR5Xvd8o5iuQYpy6OA6d5G.jpg",
+              "/fsu7oo8JikEIj2I6nRSnruGx3Es.jpg",
+              "/zJB2tQVGzHARuxjXIRaY0ZttgrN.jpg",
+              "/frwHYd7LmSYrmO9aiX0DLqQQlF0.jpg",
+              "/650k8IZOh7NreCQ4I6B5h4XQC19.jpg",
+              "/2YH2N5AMYQ6DEG3Ztqfglj9Q8Hq.jpg",
+              "/h4qNdahG04xEliMGC3Z0qIZ6YoY.jpg",
+              "/y8PNwU2YxD1usfFfqIqZ4tKb4RG.jpg",
+              "/zLUgPjASJl7rniqRT2r91hQwbnX.jpg",
+              "/x8Up7lZa8vHQohzH2w5KGoHfUCU.jpg",
+              "/90a4E2AeL5z7QjaCphO6Qlq3E2C.jpg",
+              "/dJ0PP0AM8wykNbezF2MHwm3tMyw.jpg",
+              "/qM6jxoWrqbw27gVQLWfZvgUeWSv.jpg",
+              "/wLtSpuWhk4uucVhWcbdVEt3l74I.jpg",
+              "/qcVKFJsRccdWSIWc42tWBjob7z5.jpg",
+              "/5N3PKRuXODFeCmULp9bBu9zmFtV.jpg",
+              "/3A1tPHIm3YXS1oXMPDyIe8WlO9c.jpg",
+              "/dMiiX5p9PTFplTjSVWBQcCWBBvi.jpg",
+              "/8nIRrR1Z16Sq0RY79vkiEhSRVyn.jpg",
+              "/u8qQWtWbOcTXIZIz0iTMz2prpuV.jpg",
+              "/zTswYrbq8VEh6KKS8fwtRCBABfr.jpg",
+              "/yA0e69UK3c02DbE6PMJ8VJwUCkb.jpg",
+              "/xRm1g7ZSkyGKXOxRFqSdoEODD9N.jpg",
+              "/56gqbVoEQYtB5rIs3llPuNxQp9a.jpg",
+              "/xFujHpFNaB6PvLq6qwzrFRaLiL8.jpg",
+              "/xPe38m5I3IgtQIQ0aneYUgcxK6p.jpg",
+              "/cuFeb9bZfiQUJUpKDwcDdpT623c.jpg",
+              "/8239PskFvv2w0mUiWE1lVK1GdG9.jpg",
+              "/3uYWEotFirab05i0IX3hRqjSrTF.jpg",
+              "/8DWNeZguWEjIY1Z4gd8QBW72yAm.jpg",
+              "/rONz8RexBQiNZVIs2jQuRdAlEj1.jpg",
+              "/xN2ehKn5UbifWrHtL96jpL0CqSI.jpg",
+              "/xyhvKeLkliazJZcHAkGI6Jcv5kG.jpg",
+              "/2mA73tRk1GDCpRMKcn4eNheemaL.jpg",
+              "/k39S3wv3aF8FrHDqEFP6g2fg76p.jpg",
+              "/pfHmfNcDpt1jc95HjCZAMianjh5.jpg",
+              "/liuw85o3jo6LLkepnbRtaqzmqc9.jpg",
+              "/4dnPWcE2WyWZ4NtVRFHfV1R53Gm.jpg",
+              "/xzYriUiuPOWHR5fskZzTlWGreUo.jpg",
+              "/i2ZWXLTijmPu0kWHkA7yDYG05W9.jpg",
+              "/r9SxTo6BgdYtMckcpTN9KYtIN7o.jpg",
+              "/8tXsAUJQtBG3ZR8cadKSSwEtYsS.jpg",
+              "/fVxq3wUYc2FuSVKlStkXCr8tQMm.jpg",
+              "/wnHYKbagErWP4GCgje73OgcClPG.jpg",
+              "/drJmebKxr9wyrlbhobEDkFTuYEt.jpg",
+              "/29ro6Wvws1AXvQP0ZmdNbLknLIL.jpg",
+              "/y4eGVqiQeqL0kNuKt9mniipccP.jpg",
+              "/6HnLg6V4s8P4mrVfI5VFhyc6Nhl.jpg",
+              "/eXvWje8yvhykNhKR8VkHUP5RVgF.jpg",
+              "/iS0VGXLTve8pUgXxSJMKEqTBel9.jpg"
+            ],
+            "youtubeTrailerIds": [
+              "isOGD_7hNIY",
+              "PhPROyE0OaM",
+              "1gsL9feX1cM",
+              "0ytvBJWW5wo",
+              "D97IGSXBoHw",
+              "SEUXfv87Wpk",
+              "ccdTUEZsAW0",
+              "1PYYuv_wZkk",
+              "_g9sMBFDag8",
+              "wBIotSNVdiI",
+              "rykQ9v9UJR0",
+              "Wg_Ql89fWy4",
+              "ekMl5VHBH4I",
+              "jrLkc-4uqIQ",
+              "gglz7vYZGVA",
+              "57kbSBLahU0",
+              "3eHC5skrS_c",
+              "rnofTL3X1sA",
+              "bM9QabAojCg",
+              "hvdSg09_GFM",
+              "dZKLcgwdqGw",
+              "lkA5ifth91k",
+              "T2P_oGtiIxY",
+              "ZNFdGfouBh0",
+              "Zh0A35bB1gw",
+              "RpXn8iqBsY4",
+              "eGE7Ndab3tQ",
+              "rjuLPmp-c2o",
+              "1dcwt8IsMNU",
+              "xy6QlEnMnh0",
+              "tNtSMuPuBww",
+              "WplhYy4iUWQ",
+              "XygxhDSy9fg",
+              "pmf_ZcwRu9A",
+              "iYWBGJzXvs0",
+              "CEIwFAQ-Rec",
+              "hb1iOVvkykY",
+              "CRl0SSacqjo",
+              "hQshsvATll4",
+              "4ZBE-BbD7T8",
+              "vuGML5xMVHk",
+              "fLlosedYVlo"
+            ],
+            "plotSummary": "All unemployed, Ki-taek's family takes peculiar interest in the wealthy and glamorous Parks for their livelihood until they get entangled in an unexpected incident.",
+            "numRatings": 17987,
+            "avgRating": 4.30233,
+            "releaseYear": "2019"
+          },
+          "movieUserData": {
+            "userId": 443285,
+            "movieId": 202439,
+            "rating": null,
+            "dateRated": null,
+            "prediction": 4.262552316386418,
+            "wishlist": false,
+            "hidden": false,
+            "predictionDetails": {
+              "primaryPrediction": 4.262552316386418,
+              "primaryPredictionType": "FALLBACK",
+              "components": [
+                {
+                  "pred": 4.262552316386418,
+                  "type": "FALLBACK"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "movieId": 306771,
+          "rec_val_type": "",
+          "tstamp": null,
+          "movie": {
+            "movieId": 306771,
+            "tmdbMovieId": 1112617,
+            "imdbMovieId": "25971184",
+            "title": "Parasite Lady",
+            "originalTitle": "Parasite Lady",
+            "mpaa": "",
+            "runtime": 43,
+            "releaseDate": "2023-04-14",
+            "dvdReleaseDate": null,
+            "genres": [
+              "Horror"
+            ],
+            "languages": [
+              "English"
+            ],
+            "directors": [
+              "Chris Alexander"
+            ],
+            "actors": [
+              "Arrielle Edwards",
+              "Ali Chappell",
+              "Kate Gabriele",
+              "Thea Munster"
+            ],
+            "posterPath": "/wxnwHANNPrzz7uHQSujxLMWOs7t.jpg",
+            "backdropPaths": [
+              "/llMeHErQUt6Khtki0MWumJBVXpA.jpg",
+              "/vOld9XaFpyF2y6zHyAP0fYK5kLU.jpg",
+              "/xiRHQNfebUGMbOC2Ezdpe2PHdVw.jpg",
+              "/ztCdvCj2clz8ewnKRa8PZcfkMdG.jpg",
+              "/6a8LAMaXwI0O5yt0ZnPoHRLmFoY.jpg",
+              "/jG8QP3uYqmGqbHKSwwXHb5WqmaG.jpg",
+              "/cr3oUKDD4bBtRWNOHdFjxsUCssu.jpg",
+              "/84ujp3IqmdC99cLlhqSm37j2NeD.jpg",
+              "/8REEyqSuNMj5NNQKN80CjUyatZA.jpg"
+            ],
+            "youtubeTrailerIds": [],
+            "plotSummary": "Rising from her coffin, an inter-dimensional female vampire prowls a run down carnival hunting for love and human blood.",
+            "numRatings": 2,
+            "avgRating": 1.0,
+            "releaseYear": "2023"
+          },
+          "movieUserData": {
+            "userId": 443285,
+            "movieId": 306771,
+            "rating": null,
+            "dateRated": null,
+            "prediction": 3.3142839452945556,
+            "wishlist": false,
+            "hidden": false,
+            "predictionDetails": {
+              "primaryPrediction": 3.3142839452945556,
+              "primaryPredictionType": "FALLBACK",
+              "components": [
+                {
+                  "pred": 3.3142839452945556,
+                  "type": "FALLBACK"
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "pager": {
+        "itemsPerPage": 5,
+        "totalItems": 9,
+        "currentPage": 1,
+        "totalPages": 2
+      }
+    }
+  },
+  "text": null
+}
