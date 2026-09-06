@@ -217,6 +217,10 @@ class MovieLensSession:
             {"q": query}, page_size, max_pages=max_pages
         ):
             movie = Movie.from_payload(result.get("movie") or {})
+            # The `is not None` half is belt and braces: `wanted` cannot be
+            # None here, so a result with no id of its own already fails the
+            # comparison. It stays as the second lock on None == None in case
+            # the early return above is ever relaxed.
             if movie.imdb_id is not None and movie.imdb_id == wanted:
                 return movie
         return None

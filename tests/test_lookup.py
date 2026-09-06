@@ -12,6 +12,8 @@ two pages, three of them titled exactly "Parasite", and the one a consumer
 usually wants sits fourth on page one.
 """
 
+import copy
+
 import pytest
 
 from movielens_client import AuthenticationError, MovieLensAPIError, login
@@ -112,13 +114,18 @@ def test_an_id_none_of_the_results_carry_is_none_not_a_wrong_film(search_http):
     assert len(explore_calls(search_http)) == 2  # the whole result set was read
 
 
-def test_a_result_with_no_imdb_id_never_matches(logged_in_http):
-    """``None == None`` is the way this quietly rates an unrelated film.
+def test_a_film_with_no_imdb_id_never_stands_in_for_one(logged_in_http):
+    """A result MovieLens carries no IMDb id for must never be the answer.
 
-    MovieLens can carry a film with no ``imdbMovieId``. If a wanted id that
-    canonicalises to nothing were compared with ``==``, that film would match
-    anything. Here the film with the stripped id sits first, ahead of the real
-    match.
+    ``None == None`` is how a lookup quietly rates an unrelated film, and the
+    client blocks it in two places: it refuses to search at all for a wanted id
+    that canonicalises to nothing (pinned by
+    ``test_an_unusable_imdb_id_matches_nothing_and_asks_nothing``, which is
+    where that half is proved), and it skips results with no id of their own.
+    The second guard is unreachable while the first stands, so this test pins
+    the reachable behaviour: a film with a stripped id, sitting first, is
+    returned neither for an id nothing carries nor in place of the real match
+    further down.
     """
     page1 = response_from_fixture("search_parasite_page1")
     results = page1._payload["data"]["searchResults"]
@@ -190,7 +197,6 @@ def test_the_search_is_by_title_and_never_by_the_id(search_http):
     for call in calls:
         assert call["params"]["q"] == "Parasite"
         assert "imdbMovieId" not in call["params"]
-        assert not str(call["params"]["q"]).lower().startswith("tt0")
 
 
 def test_the_lookup_survives_a_service_that_springs_both_traps(logged_in_http):
@@ -244,6 +250,78 @@ def huge_search(params, _payload):
         result["movie"]["movieId"] = unique
         result["movie"]["imdbMovieId"] = f"{unique:07d}"
     return response
+
+
+#: The candidate ceiling the default bounds are meant to buy: pages times page
+#: size. It is the number that decides when a None stops meaning "MovieLens
+#: does not carry it" and starts meaning "we did not look far enough", so it is
+#: asserted through behaviour below rather than left to two constants that
+#: could be halved without a test noticing.
+DEFAULT_CANDIDATE_CEILING = 200
+
+
+def deep_search(params, _payload):
+    """A search that answers with as many distinct films as are asked for.
+
+    Every candidate carries a unique IMDb id derived from its position in the
+    whole result set, so a test can ask for the Nth candidate by name and find
+    out exactly how deep the lookup is willing to go.
+    """
+    page = int(params["page"])
+    page_size = int(params["pageSize"])
+    response = response_from_fixture("search_parasite_page1")
+    data = response._payload["data"]
+    data["pager"].update(
+        {"totalItems": 10_000, "currentPage": page, "itemsPerPage": page_size}
+    )
+    template = data["searchResults"][0]
+    results = []
+    for offset in range(page_size):
+        index = (page - 1) * page_size + offset
+        result = copy.deepcopy(template)
+        result["movieId"] = 900000 + index
+        result["movie"]["movieId"] = 900000 + index
+        result["movie"]["imdbMovieId"] = f"{9000000 + index}"
+        results.append(result)
+    data["searchResults"] = results
+    return response
+
+
+def candidate_id(position: int) -> str:
+    """The canonical IMDb id of the ``position``-th candidate, 1-based."""
+    return f"tt{9000000 + position - 1}"
+
+
+def test_the_default_bounds_reach_two_hundred_candidates(logged_in_http):
+    """The last candidate inside the ceiling is still found.
+
+    Counting requests is not enough: four pages of five would pass a
+    request-count test while quietly cutting the search to twenty candidates,
+    and a caller cannot tell a too-shallow search from a film MovieLens does
+    not have.
+    """
+    logged_in_http.routes[EXPLORE] = deep_search
+    session = login("u", "p", http=logged_in_http)
+
+    last_inside = session.find_movie_by_imdb_id(
+        candidate_id(DEFAULT_CANDIDATE_CEILING), "Parasite"
+    )
+
+    assert last_inside is not None
+    assert last_inside.imdb_id == candidate_id(DEFAULT_CANDIDATE_CEILING)
+
+
+def test_the_default_bounds_stop_at_two_hundred_candidates(logged_in_http):
+    """And the first candidate past it is not, so the ceiling is exact."""
+    logged_in_http.routes[EXPLORE] = deep_search
+    session = login("u", "p", http=logged_in_http)
+
+    assert (
+        session.find_movie_by_imdb_id(
+            candidate_id(DEFAULT_CANDIDATE_CEILING + 1), "Parasite"
+        )
+        is None
+    )
 
 
 def test_the_search_is_bounded(logged_in_http):
@@ -325,4 +403,6 @@ def test_a_found_movie_can_be_rated_without_another_lookup(search_http):
     write = search_http.calls[-1]
     assert write["path"] == "/api/users/me/ratings"
     assert write["json"]["movieId"] == PARASITE_2019[1]
-    assert write["json"]["predictedRating"] is not None
+    assert write["json"]["predictedRating"] == pytest.approx(
+        3.5245337713991387  # movie_detail fixture's movieUserData.prediction
+    )
