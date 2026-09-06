@@ -4,7 +4,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from typing import Any
+from contextlib import contextmanager
+from typing import Any, Iterator
+
+from .errors import MovieLensAPIError
 
 __all__ = [
     "canonical_imdb_id",
@@ -35,6 +38,24 @@ def canonical_imdb_id(raw: Any) -> str | None:
     if not text.isdigit():
         return None
     return f"tt{text.zfill(7)}"
+
+
+@contextmanager
+def _shape_errors(what: str) -> Iterator[None]:
+    """Turn payload-shape surprises into MovieLensAPIError.
+
+    This is an unpublished API with no contract, so drift is the failure most
+    likely to arrive unannounced. A consumer wrapping its mirror loop in
+    ``except MovieLensError`` should defer when MovieLens starts returning
+    something unrecognisable, not crash on a TypeError raised from inside a
+    dataclass constructor — that exception escapes the hierarchy entirely.
+    """
+    try:
+        yield
+    except (KeyError, TypeError, ValueError) as exc:
+        raise MovieLensAPIError(
+            f"MovieLens returned an unexpected {what} payload: {exc!r}"
+        ) from exc
 
 
 def _parse_timestamp(raw: Any) -> datetime | None:
@@ -69,11 +90,12 @@ class Account:
 
     @classmethod
     def from_payload(cls, data: dict[str, Any]) -> "Account":
-        account = data.get("account") or {}
-        return cls(
-            user_name=account.get("userName") or "",
-            num_ratings=int(data.get("numRatings") or 0),
-        )
+        account = (data or {}).get("account") or {}
+        with _shape_errors("account"):
+            return cls(
+                user_name=account.get("userName") or "",
+                num_ratings=int(data.get("numRatings") or 0),
+            )
 
 
 @dataclass(frozen=True)
@@ -89,17 +111,24 @@ class Movie:
 
     @classmethod
     def from_payload(cls, payload: dict[str, Any]) -> "Movie":
+        """Build a Movie, or raise MovieLensAPIError if the shape is wrong.
+
+        ``movieId`` is the one field with no sensible default: without it the
+        caller cannot address the movie at all. Everything else degrades to
+        None or empty, matching how a null ``movieUserData`` is tolerated.
+        """
         payload = payload or {}
         tmdb = payload.get("tmdbMovieId")
         year = payload.get("releaseYear")
-        return cls(
-            movie_id=int(payload.get("movieId")),
-            imdb_id=canonical_imdb_id(payload.get("imdbMovieId")),
-            tmdb_id=int(tmdb) if tmdb is not None else None,
-            title=payload.get("title") or "",
-            year=int(year) if year else None,
-            genres=tuple(payload.get("genres") or ()),
-        )
+        with _shape_errors("movie"):
+            return cls(
+                movie_id=int(payload["movieId"]),
+                imdb_id=canonical_imdb_id(payload.get("imdbMovieId")),
+                tmdb_id=int(tmdb) if tmdb is not None else None,
+                title=payload.get("title") or "",
+                year=int(year) if year else None,
+                genres=tuple(payload.get("genres") or ()),
+            )
 
 
 class _HasMovie:
