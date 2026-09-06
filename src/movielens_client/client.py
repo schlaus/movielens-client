@@ -195,6 +195,10 @@ class MovieLensSession:
             )
             data = body.get("data") or {}
             results = data.get("searchResults") or []
+            if not isinstance(results, list):
+                raise MovieLensAPIError(
+                    "MovieLens returned a searchResults block that is not a list",
+                )
             if not results:
                 return
 
@@ -252,9 +256,10 @@ def _request(
     - transport trouble, non-JSON, 5xx, other 4xx → :class:`MovieLensAPIError`
     - 401/403, or a body saying auth failed → :class:`AuthenticationError`
 
-    ``auth_failure=True`` is for the login endpoint, where a body-level
-    ``status: fail`` means the credentials were rejected rather than the
-    request being malformed.
+    ``auth_failure=True`` is for the login endpoint, and applies only to a
+    body-level ``status: fail`` on an otherwise-successful response, where it
+    means the credentials were rejected. It deliberately does not widen 4xx or
+    5xx into an auth failure: those are outages whatever endpoint they hit.
     """
     try:
         response = http.request(
@@ -285,11 +290,15 @@ def _request(
         )
 
     if status_code >= 400:
-        exc_type = AuthenticationError if auth_failure else MovieLensAPIError
-        detail = message or f"HTTP {status_code}"
-        if exc_type is AuthenticationError:
-            raise AuthenticationError(detail)
-        raise MovieLensAPIError(detail, status_code=status_code)
+        # Deliberately not conditioned on auth_failure. A rejected login is a
+        # 401 and was caught above; a 200 carrying status: fail is caught
+        # below. Nothing else reaching here is a credential rejection, so
+        # routing 4xx/5xx to AuthenticationError at login would turn a
+        # MovieLens outage into "your password is wrong" — the consumer would
+        # stop deferring and mark good credentials invalid.
+        raise MovieLensAPIError(
+            message or f"HTTP {status_code}", status_code=status_code
+        )
 
     if body.get("status") != "success":
         # A 200 carrying status: fail. On login this means bad credentials; if

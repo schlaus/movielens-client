@@ -115,3 +115,32 @@ def test_failed_login_does_not_echo_the_password_in_the_exception():
     with pytest.raises(AuthenticationError) as excinfo:
         login(USERNAME, PASSWORD, http=http)
     assert PASSWORD not in str(excinfo.value)
+
+
+@pytest.mark.parametrize("status_code", [429, 500, 503])
+def test_an_outage_during_login_is_an_api_error_not_an_auth_error(status_code):
+    """MovieLens being down while logging in is not a bad password.
+
+    If a 5xx at login raised AuthenticationError, the nightly mirror would stop
+    deferring, mark stored credentials invalid and ask the user to re-enter a
+    password that was never wrong. That is the precise inversion these two
+    types exist to prevent, and it survives the outage — the credentials stay
+    marked bad afterwards.
+    """
+    body = {"status": "error", "message": "MovieLens application error MLERR0"}
+    http = FakeHTTP({("POST", "/api/sessions"): FakeResponse(status_code, body)})
+
+    with pytest.raises(MovieLensAPIError) as excinfo:
+        login(USERNAME, PASSWORD, http=http)
+
+    assert not isinstance(excinfo.value, AuthenticationError)
+    assert excinfo.value.status_code == status_code
+
+
+def test_a_recorded_500_at_login_is_an_api_error():
+    http = FakeHTTP({("POST", "/api/sessions"): response_from_fixture("server_error_500")})
+
+    with pytest.raises(MovieLensAPIError) as excinfo:
+        login(USERNAME, PASSWORD, http=http)
+
+    assert not isinstance(excinfo.value, AuthenticationError)
